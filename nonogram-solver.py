@@ -79,37 +79,37 @@ def printboard(board):
         print('')
     print('')
 
-def it(blocks, start, end):
+def build_clue_sets(blocks, start, end):
     if(len(blocks) < 1):
         return [set()]
 
     res = []
     for s in range(start, end + 1 - (sum(blocks) + len(blocks) - 1)):
         base = {x for x in range(s, s+blocks[0])}
-        for ext in it(blocks[1:], s+blocks[0]+1, end):
+        for ext in build_clue_sets(blocks[1:], s+blocks[0]+1, end):
             res.append(base | ext)
     return res
 
-def solve(brd, clues, length):
+def solve(brd, cluesets, length):
     changed = False
-    for line, c in enumerate(clues):
+    for line, clueset in enumerate(cluesets):
         known_unset = {x for x, v in enumerate(brd[line]) if v==0}
         known_yes = {x for x, v in enumerate(brd[line]) if v==1}
         known_no = {x for x, v in enumerate(brd[line]) if v==-1}
 
         # Get all possible options, remove ones that conflict with known state
-        options = it(c, 0, length)
-        options = [x for x in options if known_yes <= x and x.isdisjoint(known_no)]
-        if options:
-            new_yes = set.intersection(*options) - known_yes
-            for el in new_yes:
-                brd[line][el] = 1
-                changed = True
+        clueset = [x for x in clueset if known_yes <= x and x.isdisjoint(known_no)]
+        cluesets[line] = clueset
+        new_yes = set.intersection(*clueset) - known_yes
+        for el in new_yes:
+            brd[line][el] = 1
+            changed = True
 
-            new_no = known_unset - set.union(*options)
-            for el in new_no:
-                brd[line][el] = -1
-                changed = True
+        new_no = known_unset - set.union(*clueset)
+        for el in new_no:
+            brd[line][el] = -1
+            changed = True
+
     return changed
 
 def flip(board):
@@ -120,17 +120,20 @@ def flip(board):
             newboard[n].append(el)
     return newboard
 
+cluesets_x = [build_clue_sets(clues_x[i], 0, height) for i in range(0, width)]
+cluesets_y = [build_clue_sets(clues_y[i], 0, width) for i in range(0, height)]
+
 printboard(board)
 again = True
 count = 0
 while again:
     again = False
     # do clues_y
-    again = again or solve(board, clues_y, width)
+    again = again or solve(board, cluesets_y, width)
 
     # do clues_x
     board = flip(board)
-    again = again or solve(board, clues_x, height)
+    again = again or solve(board, cluesets_x, height)
     board = flip(board)
     printboard(board)
     count = count + 1
