@@ -82,7 +82,7 @@ def printboard(board):
 def build_clue_sets(blocks, start, end):
     res = []
     for s in range(start, end + 1 - (sum(blocks) + len(blocks) - 1)):
-        base = {x for x in range(s, s+blocks[0])}
+        base = set(range(s, s+blocks[0]))
         if len(blocks) == 1:
             res.append(base)
         else:
@@ -120,8 +120,8 @@ def flip(board):
             newboard[n].append(el)
     return newboard
 
-cluesets_x = [build_clue_sets(clues_x[i], 0, height) for i in range(0, width)]
-cluesets_y = [build_clue_sets(clues_y[i], 0, width) for i in range(0, height)]
+cluesets_x = [build_clue_sets(clues_x[i], 0, height) for i in range(width)]
+cluesets_y = [build_clue_sets(clues_y[i], 0, width) for i in range(height)]
 
 printboard(board)
 again = True
