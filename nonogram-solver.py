@@ -127,13 +127,12 @@ printboard(board)
 again = True
 count = 0
 while again:
-    again = False
     # do clues_y
-    again = again or solve(board, cluesets_y, width)
+    again = solve(board, cluesets_y, width)
 
     # do clues_x
     board = flip(board)
-    again = again or solve(board, cluesets_x, height)
+    again = solve(board, cluesets_x, height) or again
     board = flip(board)
     printboard(board)
     count = count + 1
