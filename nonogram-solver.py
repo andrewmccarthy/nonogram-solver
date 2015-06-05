@@ -80,14 +80,13 @@ def printboard(board):
     print('')
 
 def build_clue_sets(blocks, start, end):
+    if not blocks:
+        return [set()]
     res = []
     for s in range(start, end + 1 - (sum(blocks) + len(blocks) - 1)):
         base = set(range(s, s+blocks[0]))
-        if len(blocks) == 1:
-            res.append(base)
-        else:
-            for ext in build_clue_sets(blocks[1:], s+blocks[0]+1, end):
-                res.append(base | ext)
+        for ext in build_clue_sets(blocks[1:], s+blocks[0]+1, end):
+            res.append(base | ext)
     return res
 
 def solve(brd, cluesets, length):
